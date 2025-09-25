@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Медицинские учреждения</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f5f3;
+            color: #444;
+            margin: 0;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            text-align: center;
+            color: #2c7873;
+            font-weight: 600;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #6a9c89;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        .terms {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .term-box {
+            padding: 14px 22px;
+            background-color: #d9e5e3;
+            color: #000;
+            border: 1px solid #b8cbb8;
+            border-radius: 8px;
+            cursor: move;
+            font-weight: bold;
+            text-align: center;
+            width: 180px;
+            user-select: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        .term-box:hover {
+            background-color: #c7d7d3;
+            transform: translateY(-2px);
+        }
+        .term-box.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .definitions {
+            display: grid;
+            gap: 18px;
+        }
+
+        .definition {
+            border: 2px dashed #b8cbb8;
+            padding: 18px;
+            border-radius: 10px;
+            min-height: 80px;
+            background-color: #edf5f3;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .definition.highlight {
+            border-color: #2c7873;
+            background-color: #ddf0eb;
+        }
+        .definition p {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .definition .match {
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .match.correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .match.wrong {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .match.missing {
+            color: #777;
+            font-style: italic;
+        }
+
+        .btn-group {
+            text-align: center;
+            margin: 30px 0 10px;
+        }
+        .check-btn, .reset-btn {
+            padding: 12px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .check-btn {
+            background-color: #6a9c89;
+            color: white;
+        }
+        .check-btn:hover {
+            background-color: #5a8a79;
+        }
+        .reset-btn {
+            background-color: #a2d2c9;
+            color: #000;
+        }
+        .reset-btn:hover {
+            background-color: #92c2bc;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Медицинские учреждения</h1>
+    <p class="subtitle">Перетащите название в соответствующее определение</p>
+
+    <!-- Названия для перетаскивания -->
+    <div class="terms" id="termsContainer">
+        <div class="term-box" draggable="true" id="drag-поликлиника">Поликлиника</div>
+        <div class="term-box" draggable="true" id="drag-больница">Больница</div>
+        <div class="term-box" draggable="true" id="drag-диспансер">Диспансер</div>
+        <div class="term-box" draggable="true" id="drag-аптека">Аптека</div>
+    </div>
+
+    <!-- Определения (зоны сброса) -->
+    <div class="definitions">
+        <div class="definition" data-target="поликлиника" id="def-поликлиника">
+            <p><strong>Определение:</strong> медицинское учреждение, где ведут приём врачи разных специальностей.</p>
+            <div class="match-area"></div>
+        </div>
+
+        <div class="definition" data-target="больница" id="def-больница">
+            <p><strong>Определение:</strong> медицинское учреждение, где на излечении находятся больные.</p>
+            <div class="match-area"></div>
+        </div>
+
+        <div class="definition" data-target="диспансер" id="def-диспансер">
+            <p><strong>Определение:</strong> медицинское учреждение, где наблюдают за людьми, имеющими склонность к определённым заболеваниям (например, туберкулёзу, диабету, инфекционным или хроническим заболеваниям), для определения диагноза проблемы и начала лечения.</p>
+            <div class="match-area"></div>
+        </div>
+
+        <div class="definition" data-target="аптека" id="def-аптека">
+            <p><strong>Определение:</strong> медицинское учреждение, где отпускаются лекарственные средства по рецептам врачей и без рецепта.</p>
+            <div class="match-area"></div>
+        </div>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="btn-group">
+        <button class="check-btn" onclick="checkAll()">Проверить все</button>
+        <button class="reset-btn" onclick="resetAll()">Сбросить</button>
+    </div>
+</div>
+
+<script>
+    // Все правильные пары
+    const correctPairs = {
+        "def-поликлиника": "поликлиника",
+        "def-больница": "больница",
+        "def-диспансер": "диспансер",
+        "def-аптека": "аптека"
+    };
+
+    // При загрузке страницы
+    document.addEventListener("DOMContentLoaded", function () {
+        const draggables = document.querySelectorAll(".term-box");
+        const dropZones = document.querySelectorAll(".definition");
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener("dragstart", function (e) {
+                e.dataTransfer.setData("text/plain", this.id);
+                this.style.opacity = "0.7";
+            });
+
+            draggable.addEventListener("dragend", function () {
+                this.style.opacity = "1";
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener("dragover", function (e) {
+                e.preventDefault();
+                this.classList.add("highlight");
+            });
+
+            zone.addEventListener("dragleave", function () {
+                this.classList.remove("highlight");
+            });
+
+            zone.addEventListener("drop", function (e) {
+                e.preventDefault();
+                this.classList.remove("highlight");
+
+                const data = e.dataTransfer.getData("text/plain");
+                const termName = data.replace("drag-", "").toLowerCase();
+                const termElement = document.getElementById(data);
+
+                // Удаляем плашку после сброса
+                termElement.classList.add("disabled");
+                termElement.draggable = false;
+
+                // Очищаем другие зоны от этого термина
+                clearExistingMatch(termName);
+
+                const matchArea = this.querySelector(".match-area");
+                if (this.querySelector(".match")) {
+                    this.querySelector(".match").remove();
+                }
+
+                const matchSpan = document.createElement("div");
+                matchSpan.className = "match";
+                matchSpan.textContent = termName.charAt(0).toUpperCase() + termName.slice(1);
+
+                // Временно не проверяем здесь — пусть проверит кнопка
+                matchArea.appendChild(matchSpan);
+            });
+        });
+    });
+
+    // Удалить совпадение, если название уже где-то есть
+    function clearExistingMatch(termName) {
+        const allMatches = document.querySelectorAll(".match");
+        allMatches.forEach(match => {
+            if (match.textContent.toLowerCase() === termName) {
+                match.parentElement.removeChild(match);
+            }
+        });
+
+        // Вернуть возможность перетаскивания только для тех, что ещё не использованы
+        const terms = document.querySelectorAll(".term-box");
+        terms.forEach(term => {
+            const currentName = term.id.replace("drag-", "").toLowerCase();
+            if (currentName === termName) {
+                term.classList.remove("disabled");
+                term.draggable = true;
+            }
+        });
+    }
+
+    // Проверить все соответствия
+    function checkAll() {
+        let allCorrect = true;
+
+        for (const [defId, correctTerm] of Object.entries(correctPairs)) {
+            const defZone = document.getElementById(defId);
+            const matchArea = defZone.querySelector(".match-area");
+            const match = matchArea.querySelector(".match");
+
+            // Удаляем предыдущий статус
+            if (match && match.classList.contains("correct")) match.classList.remove("correct");
+            if (match && match.classList.contains("wrong")) match.classList.remove("wrong");
+
+            if (!match) {
+                allCorrect = false;
+                const hint = document.createElement("div");
+                hint.className = "match missing";
+                hint.textContent = `Не хватает: ${correctTerm.charAt(0).toUpperCase() + correctTerm.slice(1)}`;
+                matchArea.appendChild(hint);
+            } else {
+                const userTerm = match.textContent.toLowerCase();
+                if (userTerm === correctTerm) {
+                    match.classList.add("correct");
+                } else {
+                    match.classList.add("wrong");
+                    allCorrect = false;
+                }
+            }
+        }
+
+        if (allCorrect) {
+            alert("🎉 Отлично! Все соответствия верны!");
+        } else {
+            alert("❌ Есть ошибки. Проверьте подсказки.");
+        }
+    }
+
+    // Сбросить всё
+    function resetAll() {
+        // Очистить все match
+        document.querySelectorAll(".match").forEach(el => el.remove());
+
+        // Вернуть все плашки активными
+        const terms = document.querySelectorAll(".term-box");
+        terms.forEach(term => {
+            term.classList.remove("disabled");
+            term.draggable = true;
+        });
+    }
+</script>
+
+</body>
+</html>
